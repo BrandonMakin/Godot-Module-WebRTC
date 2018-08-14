@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+Import('env')
+Import('env_modules')
+
+# Thirdparty source files
+
+env_webrtc = env_modules.Clone()
+
+thirdparty_dir = "#thirdparty/webrtc/"
+
+if env_webrtc["platform"] != "javascript": # No need to add third party libraries to javascript at all
+    env_webrtc.Append(CPPPATH=[thirdparty_dir + "include/"])
+    env_webrtc.Append(CPPPATH=[thirdparty_dir + "include/webrtc"])
+
+    if env_webrtc["platform"] == "windows" or env_webrtc["platform"] == "uwp":
+        env_webrtc.Append(CCFLAGS=["-DWEBRTC_WIN", "-D_WINSOCKAPI_", "-DNOMINMAX"])
+        env_webrtc.Append(CCFLAGS=["/DRTC_UNUSED=", "/DNO_RETURN="])
+    else:
+        env_webrtc.Append(CCFLAGS=["-std=c++11"])
+        env_webrtc.Append(CCFLAGS=["-DWEBRTC_POSIX", "-DWEBRTC_LINUX"])
+        env_webrtc.Append(CCFLAGS=["-D_GLIBCXX_USE_CXX11_ABI=0"])
+        env_webrtc.Append(CCFLAGS=["-DRTC_UNUSED=''", "-DNO_RETURN=''"])
+
+env_webrtc.add_source_files(env.modules_sources, "*.cpp")
